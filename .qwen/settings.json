@@ -1,0 +1,17 @@
+{
+    "mcpServers": {
+        "context7": {
+            "httpUrl": "https://mcp.context7.com/mcp",
+            "headers": {
+                "CONTEXT7_API_KEY": "ctx7sk-e6180155-49e8-4be7-b7b2-1ac177f95fb2"
+            }
+        },
+        "sequential-thinking": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sequential-thinking"
+            ]
+        }
+    }
+}

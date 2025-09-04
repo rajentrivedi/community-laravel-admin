@@ -1,0 +1,33 @@
+{
+    "name": "indianic/filament-chatify-integration",
+    "description": "Seamlessly integrate real-time messaging into your application.",
+    "type": "library",
+    "license": "MIT",
+    "version": "1.0.1",
+    "autoload": {
+        "psr-4": {
+            "Monzer\\FilamentChatifyIntegration\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Monzer Osman",
+            "email": "monzerosman@live.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "filament/support": "^4.0",
+        "munafio/chatify": "^1.0",
+        "spatie/laravel-package-tools": "^1.9"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Monzer\\FilamentChatifyIntegration\\ChatifyServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
