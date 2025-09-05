@@ -9,7 +9,6 @@
         "php": "^8.2",
         "filament/filament": "^4.0",
         "filament/spatie-laravel-media-library-plugin": "^4.0",
-        "indianic/filament-chatify-integration": "1.0.1",
         "kreait/laravel-firebase": "^6.1",
         "laravel/framework": "^12.0",
         "laravel/octane": "^2.12",
@@ -30,10 +29,6 @@
         "pestphp/pest-plugin-laravel": "^4.0"
     },
     "repositories": [
-        {
-            "type": "path",
-            "url": "package/*"
-        }
     ],
     "autoload": {
         "psr-4": {

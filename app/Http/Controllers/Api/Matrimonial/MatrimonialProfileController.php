@@ -2,25 +2,48 @@
 
 namespace App\Http\Controllers\Api\Matrimonial;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Matrimonial\MatrimonialProfileCollection;
-use App\Http\Resources\Matrimonial\MatrimonialProfileResource;
-use App\Models\MatrimonialProfile;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Models\MatrimonialProfile;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+use App\Http\Resources\Matrimonial\MatrimonialProfileResource;
+use App\Http\Resources\Matrimonial\MatrimonialProfileCollection;
 
 class MatrimonialProfileController extends Controller
 {
+    /**
+     * Generate a cache key based on request parameters
+     */
+    protected function generateCacheKey(Request $request, string $prefix = 'matrimonial_profiles'): string
+    {
+        $params = $request->only([
+            'gender', 'marital_status', 'religion', 'caste', 
+            'min_age', 'max_age', 'country', 'state', 'city', 'per_page', 'page'
+        ]);
+
+        // Sort the parameters to ensure consistent key generation
+        ksort($params);
+
+        // Create a unique key based on the parameters
+        $keyString = $prefix . ':' . md5(serialize($params));
+
+        return $keyString;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $query = MatrimonialProfile::with(['user', 'familyMember', 'media']);
-        // info(print_r($request->all(), true));
+        
         // Apply filters if provided
+        if ($request->has('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
         if ($request->has('marital_status')) {
             $query->where('marital_status', $request->marital_status);
         }
@@ -56,9 +79,21 @@ class MatrimonialProfileController extends Controller
 
         // Only show active profiles
         $query->where('is_active', true);
-
-        $profiles = $query->paginate($request->get('per_page', 15));
-        info(print_r(new MatrimonialProfileCollection($profiles), true));
+        
+        // Generate dynamic cache key
+        $cacheKey = $this->generateCacheKey($request);
+        
+        // Use cache tags if supported by the cache driver
+        if (method_exists(Cache::getStore(), 'tags')) {
+            $profiles = Cache::tags(['matrimonial', 'profiles'])->remember($cacheKey, 60, function () use ($query, $request) {
+                return $query->paginate($request->get('per_page', 15));
+            });
+        } else {
+            $profiles = Cache::remember($cacheKey, 60, function () use ($query, $request) {
+                return $query->paginate($request->get('per_page', 15));
+            });
+        }
+        
         return new MatrimonialProfileCollection($profiles);
     }
 
@@ -73,47 +108,56 @@ class MatrimonialProfileController extends Controller
         }
 
         $query = MatrimonialProfile::with(['user', 'familyMember', 'media'])
-            ->join('users', 'matrimonial_profiles.user_id', '=', 'users.id')
-            ->join('profiles', 'users.id', '=', 'profiles.user_id')
-            ->where('profiles.gender', 'LIKE', '%' . $gender . '%')
-            ->where('matrimonial_profiles.is_active', true)
-            ->select('matrimonial_profiles.*');
+            ->where('gender', strtolower($gender))
+            ->where('is_active', true);
 
         // Apply additional filters if provided
         if ($request->has('marital_status')) {
-            $query->where('matrimonial_profiles.marital_status', $request->marital_status);
+            $query->where('marital_status', $request->marital_status);
         }
 
         if ($request->has('religion')) {
-            $query->where('matrimonial_profiles.religion', 'LIKE', '%' . $request->religion . '%');
+            $query->where('religion', 'LIKE', '%' . $request->religion . '%');
         }
 
         if ($request->has('caste')) {
-            $query->where('matrimonial_profiles.caste', 'LIKE', '%' . $request->caste . '%');
+            $query->where('caste', 'LIKE', '%' . $request->caste . '%');
         }
 
         if ($request->has('min_age') || $request->has('max_age')) {
             if ($request->has('min_age')) {
-                $query->where('matrimonial_profiles.age', '>=', $request->min_age);
+                $query->where('age', '>=', $request->min_age);
             }
             if ($request->has('max_age')) {
-                $query->where('matrimonial_profiles.age', '<=', $request->max_age);
+                $query->where('age', '<=', $request->max_age);
             }
         }
 
         if ($request->has('country')) {
-            $query->where('matrimonial_profiles.country', 'LIKE', '%' . $request->country . '%');
+            $query->where('country', 'LIKE', '%' . $request->country . '%');
         }
 
         if ($request->has('state')) {
-            $query->where('matrimonial_profiles.state', 'LIKE', '%' . $request->state . '%');
+            $query->where('state', 'LIKE', '%' . $request->state . '%');
         }
 
         if ($request->has('city')) {
-            $query->where('matrimonial_profiles.city', 'LIKE', '%' . $request->city . '%');
+            $query->where('city', 'LIKE', '%' . $request->city . '%');
         }
 
-        $profiles = $query->paginate($request->get('per_page', 15));
+        // Generate dynamic cache key
+        $cacheKey = $this->generateCacheKey($request, 'matrimonial_profiles_' . strtolower($gender));
+        
+        // Use cache tags if supported by the cache driver
+        if (method_exists(Cache::getStore(), 'tags')) {
+            $profiles = Cache::tags(['matrimonial', 'profiles', 'gender:' . strtolower($gender)])->remember($cacheKey, 60, function () use ($query, $request) {
+                return $query->paginate($request->get('per_page', 15));
+            });
+        } else {
+            $profiles = Cache::remember($cacheKey, 60, function () use ($query, $request) {
+                return $query->paginate($request->get('per_page', 15));
+            });
+        }
 
         return new MatrimonialProfileCollection($profiles);
     }
@@ -126,6 +170,7 @@ class MatrimonialProfileController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'family_member_id' => 'nullable|exists:family_members,id',
+            'gender' => 'nullable|string|in:male,female,other',
             'age' => 'required|integer|min:18|max:100',
             'height' => 'nullable|integer|min:100|max:250',
             'weight' => 'nullable|integer|min:30|max:200',
@@ -147,6 +192,11 @@ class MatrimonialProfileController extends Controller
         ]);
 
         $profile = MatrimonialProfile::create($validated);
+
+        // Invalidate cache
+        if (method_exists(Cache::getStore(), 'tags')) {
+            Cache::tags(['matrimonial', 'profiles'])->flush();
+        }
 
         // Load relationships for the resource
         $profile->load(['user', 'familyMember', 'media']);
@@ -171,6 +221,7 @@ class MatrimonialProfileController extends Controller
         $validated = $request->validate([
             'user_id' => 'sometimes|required|exists:users,id',
             'family_member_id' => 'nullable|exists:family_members,id',
+            'gender' => 'nullable|string|in:male,female,other',
             'age' => 'sometimes|required|integer|min:18|max:100',
             'height' => 'nullable|integer|min:100|max:250',
             'weight' => 'nullable|integer|min:30|max:200',
@@ -193,6 +244,11 @@ class MatrimonialProfileController extends Controller
 
         $matrimonialProfile->update($validated);
 
+        // Invalidate cache
+        if (method_exists(Cache::getStore(), 'tags')) {
+            Cache::tags(['matrimonial', 'profiles'])->flush();
+        }
+
         // Load relationships for the resource
         $matrimonialProfile->load(['user', 'familyMember', 'media']);
 
@@ -205,6 +261,12 @@ class MatrimonialProfileController extends Controller
     public function destroy(MatrimonialProfile $matrimonialProfile): JsonResponse
     {
         $matrimonialProfile->delete();
+
+        // Invalidate cache
+        if (method_exists(Cache::getStore(), 'tags')) {
+            Cache::tags(['matrimonial', 'profiles'])->flush();
+        }
+
         return response()->json(null, 204);
     }
 }

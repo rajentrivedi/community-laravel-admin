@@ -21,6 +21,38 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Running with Laravel Octane and FrankenPHP
+
+This application is configured to run with Laravel Octane using FrankenPHP as the server.
+
+### Using Docker (Recommended)
+
+To start the application using Docker:
+
+```bash
+# Start the services
+./vendor/bin/sail up
+
+# Or if you have the sail alias
+sail up
+```
+
+The application will be available at http://localhost:8000
+
+### Using Artisan Command
+
+You can also start the application directly with Artisan:
+
+```bash
+# Install dependencies (if not already done)
+composer install
+
+# Start Octane with FrankenPHP
+php artisan octane:start --server=frankenphp --host=127.0.0.1 --port=8000
+```
+
+The application will be available at http://127.0.0.1:8000
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

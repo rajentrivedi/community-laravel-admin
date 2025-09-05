@@ -18,6 +18,7 @@ class MatrimonialProfileResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'family_member_id' => $this->family_member_id,
+            'gender' => $this->gender,
             'age' => $this->age,
             'height' => $this->height,
             'weight' => $this->weight,

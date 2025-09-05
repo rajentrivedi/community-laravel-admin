@@ -7,6 +7,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
 
 class MatrimonialProfile extends Model implements HasMedia
 {
@@ -15,6 +16,7 @@ class MatrimonialProfile extends Model implements HasMedia
     protected $fillable = [
         'user_id',
         'family_member_id',
+        'gender',
         'age',
         'height',
         'weight',
@@ -39,6 +41,35 @@ class MatrimonialProfile extends Model implements HasMedia
         'is_active' => 'boolean',
         'annual_income' => 'decimal:2',
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        // Clear cache when a matrimonial profile is created, updated, or deleted
+        static::created(function (MatrimonialProfile $matrimonialProfile) {
+            self::clearMatrimonialProfilesCache();
+        });
+
+        static::updated(function (MatrimonialProfile $matrimonialProfile) {
+            self::clearMatrimonialProfilesCache();
+        });
+
+        static::deleted(function (MatrimonialProfile $matrimonialProfile) {
+            self::clearMatrimonialProfilesCache();
+        });
+    }
+
+    /**
+     * Clear matrimonial profiles cache
+     */
+    protected static function clearMatrimonialProfilesCache(): void
+    {
+        if (method_exists(Cache::getStore(), 'tags')) {
+            Cache::tags(['matrimonial', 'profiles'])->flush();
+        }
+    }
 
     public function registerMediaCollections(): void
     {

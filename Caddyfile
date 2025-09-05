@@ -1,0 +1,10 @@
+{
+    auto_https disable_redirects
+}
+
+:8000 {
+    root * public
+    php_server
+    encode gzip
+    file_server
+}

@@ -1,15 +1,22 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Razorpay\Api\Api;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
 
 Route::get('/', function () {
-    return view('welcome');
+    return response('Hello, Octane with FrankenPHP!')->header('Content-Type', 'text/plain');
 });
 
-Route::get('/rozar', function(){
-    $api = new Api('rzp_test_RBVPV5iC82WfNr','rzp_test_RBVPV5iC82WfNr');
-    $accountId = 'pay_RBzNTh57QODlyS';
-    $account = $api->account->fetch($accountId)->webhooks()->all();
-    dd($account);
+Route::get('/test', function () {
+    return response('This is a test route for Octane with FrankenPHP!')->header('Content-Type', 'text/plain');
 });
