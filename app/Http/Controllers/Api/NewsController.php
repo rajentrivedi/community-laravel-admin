@@ -10,9 +10,28 @@ use App\Http\Resources\NewsResource;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 
 class NewsController extends Controller
 {
+    /**
+     * Generate a cache key based on request parameters
+     */
+    protected function generateCacheKey(Request $request, string $prefix = 'news'): string
+    {
+        $params = $request->only([
+            'community_id', 'author_id', 'search', 'sort_by', 'sort_direction', 'per_page', 'page'
+        ]);
+
+        // Sort the parameters to ensure consistent key generation
+        ksort($params);
+
+        // Create a unique key based on the parameters
+        $keyString = $prefix . ':' . md5(serialize($params));
+
+        return $keyString;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -50,7 +69,19 @@ class NewsController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-        $news = $query->paginate($request->get('per_page', 15));
+        // Generate dynamic cache key
+        $cacheKey = $this->generateCacheKey($request);
+        
+        // Use cache tags if supported by the cache driver
+        if (method_exists(Cache::getStore(), 'tags')) {
+            $news = Cache::tags(['news'])->remember($cacheKey, 60, function () use ($query, $request) {
+                return $query->paginate($request->get('per_page', 15));
+            });
+        } else {
+            $news = Cache::remember($cacheKey, 60, function () use ($query, $request) {
+                return $query->paginate($request->get('per_page', 15));
+            });
+        }
 
         return new NewsCollection($news);
     }
@@ -74,6 +105,11 @@ class NewsController extends Controller
 
         // Load relationships for the response
         $news->load(['author', 'community', 'media']);
+
+        // Invalidate cache
+        if (method_exists(Cache::getStore(), 'tags')) {
+            Cache::tags(['news'])->flush();
+        }
 
         return new NewsResource($news);
     }
@@ -110,6 +146,11 @@ class NewsController extends Controller
         // Load relationships for the response
         $news->load(['author', 'community', 'media']);
 
+        // Invalidate cache
+        if (method_exists(Cache::getStore(), 'tags')) {
+            Cache::tags(['news'])->flush();
+        }
+
         return new NewsResource($news);
     }
 
@@ -122,6 +163,11 @@ class NewsController extends Controller
         $this->authorize('delete', $news);
 
         $news->delete();
+
+        // Invalidate cache
+        if (method_exists(Cache::getStore(), 'tags')) {
+            Cache::tags(['news'])->flush();
+        }
 
         return response()->noContent();
     }

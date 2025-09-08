@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Posts\Pages;
 use App\Filament\Resources\Posts\PostResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Cache;
 
 class ListPosts extends ListRecords
 {
@@ -15,5 +16,13 @@ class ListPosts extends ListRecords
         return [
             CreateAction::make(),
         ];
+    }
+
+    protected function afterTableBulkActionProcessed(): void
+    {
+        // Invalidate news cache after bulk actions (including delete)
+        if (method_exists(Cache::getStore(), 'tags')) {
+            Cache::tags(['news'])->flush();
+        }
     }
 }

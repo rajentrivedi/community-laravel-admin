@@ -9,6 +9,7 @@ services:
             - '${APP_PORT:-8000}:8000'
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
+            FRONTEND_URL: '${FRONTEND_URL}'
             WWWUSER: '${WWWUSER}'
             WWWGROUP: '${WWWGROUP}'
             APP_ENV: '${APP_ENV:-local}'
