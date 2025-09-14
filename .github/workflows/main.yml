@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           
           script: |
-                cd /var/www/community-app  # adjust to your actual app path
+                cd /home/ubuntu/community-laravel-admin  # adjust to your actual app path
                 git pull origin main
 
                 # Rebuild and start containers
