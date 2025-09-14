@@ -4,7 +4,18 @@
 
 :80 {
     root * public
+   encode gzip
+
+    # Serve storage files directly
+    handle_path /storage/* {
+        file_server
+    }
+
+    # Serve other static files directly
+    handle_path /assets/* {
+        file_server
+    }
+
+    # Let Laravel handle everything else
     php_server
-    encode gzip
-    file_server
 }

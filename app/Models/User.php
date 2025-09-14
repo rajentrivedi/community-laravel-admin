@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\App;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -81,5 +82,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(FcmToken::class);
     }
+    
+    /**
+     * Boot the model.
+     */
+   
 }
 

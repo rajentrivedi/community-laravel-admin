@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
 RUN apt-get update && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev libwebp-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) gd
@@ -41,6 +44,7 @@ COPY Caddyfile /etc/caddy/Caddyfile
 # Expose ports
 EXPOSE 8000
 EXPOSE 2019
+
 
 # Start FrankenPHP server
 CMD ["frankenphp", "run"]
