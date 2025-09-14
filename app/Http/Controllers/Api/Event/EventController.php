@@ -16,7 +16,7 @@ class EventController extends Controller
      */
     protected function generateCacheKey(Request $request, string $prefix = 'events'): string
     {
-        $params = $request->only(['per_page', 'page']);
+        $params = $request->only(['per_page', 'page', 'query', 'status', 'community_id']);
 
         // Sort the parameters to ensure consistent key generation
         ksort($params);
@@ -25,6 +25,45 @@ class EventController extends Controller
         $keyString = $prefix . ':' . md5(serialize($params));
 
         return $keyString;
+    }
+
+    /**
+     * Search events by title, description, or location.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function search(Request $request)
+    {
+        $query = $request->get('query');
+        
+        if (!$query) {
+            return response()->json(['message' => 'Query parameter is required'], 400);
+        }
+        
+        // Generate dynamic cache key
+        $cacheKey = $this->generateCacheKey($request, 'events_search');
+        
+        // Use cache tags if supported by the cache driver
+        if (method_exists(Cache::getStore(), 'tags')) {
+            $events = Cache::tags(['events'])->remember($cacheKey, 60, function () use ($query, $request) {
+                return Event::where('title', 'like', "%{$query}%")
+                    ->orWhere('description', 'like', "%{$query}%")
+                    ->orWhere('location', 'like', "%{$query}%")
+                    ->with(['community', 'creator'])
+                    ->paginate($request->get('per_page', 15));
+            });
+        } else {
+            $events = Cache::remember($cacheKey, 60, function () use ($query, $request) {
+                return Event::where('title', 'like', "%{$query}%")
+                    ->orWhere('description', 'like', "%{$query}%")
+                    ->orWhere('location', 'like', "%{$query}%")
+                    ->with(['community', 'creator'])
+                    ->paginate($request->get('per_page', 15));
+            });
+        }
+        
+        return new EventCollection($events);
     }
 
     /**

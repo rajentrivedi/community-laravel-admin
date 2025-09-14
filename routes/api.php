@@ -30,7 +30,11 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Publication routes
     Route::get('/publications', [PublicationController::class, 'index']);
+    Route::get('/publications/search', [PublicationController::class, 'search']);
+    Route::post('/publications', [PublicationController::class, 'store']);
     Route::get('/publications/{publication}', [PublicationController::class, 'show']);
+    Route::put('/publications/{publication}', [PublicationController::class, 'update']);
+    Route::delete('/publications/{publication}', [PublicationController::class, 'destroy']);
     
     // News routes
     Route::apiResource('news', NewsController::class);
@@ -39,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Event routes
     Route::apiResource('events', EventController::class);
+    Route::get('/events/search', [EventController::class, 'search']);
     
     // Matrimonial routes
     Route::apiResource('matrimonial-profiles', MatrimonialProfileController::class);
