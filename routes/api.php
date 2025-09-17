@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Event\EventController;
 use App\Http\Controllers\Api\Matrimonial\MatrimonialProfileController;
 use App\Http\Controllers\Api\Matrimonial\MatrimonialImageController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\Settings\SettingsController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PublicationController;
@@ -40,6 +41,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('news', NewsController::class);
     Route::post('/news/{news}/image', [NewsController::class, 'uploadImage']);
     Route::delete('/news/{news}/image/{mediaId}', [NewsController::class, 'deleteImage']);
+    
+    // Post routes
+    Route::apiResource('posts', PostController::class);
+    Route::post('/posts/{post}/image', [PostController::class, 'uploadImage']);
+    Route::delete('/posts/{post}/image/{mediaId}', [PostController::class, 'deleteImage']);
+    Route::post('/posts/{post}/like', [PostController::class, 'like']);
+    Route::delete('/posts/{post}/like', [PostController::class, 'unlike']);
     
     // Event routes
     Route::apiResource('events', EventController::class);

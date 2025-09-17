@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -35,7 +36,15 @@ class Post extends Model implements HasMedia
         return $this->belongsTo(Community::class);
     }
     public function author() : BelongsTo
-    { 
-        return $this->belongsTo(User::class,'user_id'); 
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
+    
+    /**
+     * Get the likes for the post.
+     */
+    public function likes(): HasMany
+    {
+        return $this->hasMany(Like::class);
     }
 }
