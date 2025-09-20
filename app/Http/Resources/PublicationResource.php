@@ -23,7 +23,7 @@ class PublicationResource extends JsonResource
             'updated_at' => $this->updated_at,
             'community' => new CommunityResource($this->whenLoaded('community')),
             'author' => new UserResource($this->whenLoaded('author')),
-            'pdf_url' => $this->getFirstMediaUrl('pdfs'),
+            'pdf' => $this->getMedia('pdfs'),
         ];
     }
 }

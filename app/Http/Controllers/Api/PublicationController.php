@@ -152,12 +152,12 @@ class PublicationController extends Controller
         // Use cache tags if supported by the cache driver
         if (method_exists(Cache::getStore(), 'tags')) {
             $publication = Cache::tags(['publications'])->remember($cacheKey, 60, function () use ($publication) {
-                $publication->load(['community', 'author']);
+                $publication->load(['community', 'author', 'media']);
                 return $publication;
             });
         } else {
             $publication = Cache::remember($cacheKey, 60, function () use ($publication) {
-                $publication->load(['community', 'author']);
+                $publication->load(['community', 'author', 'media']);
                 return $publication;
             });
         }

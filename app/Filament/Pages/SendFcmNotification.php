@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\FcmToken;
 use App\Models\User;
 use Filament\Pages\Page;
 use App\Models\Notification;
@@ -97,9 +98,15 @@ class SendFcmNotification extends Page implements HasActions
         ];
         $service = new FirebaseMessagingService();
         $messaging = app('firebase.messaging');
-        $message = CloudMessage::withTarget('token', 'dBalU-zATJupIN8Tn85gLn:APA91bFLchTej3gB33Z5vnaTtbA04hr_iJFaMpYx7Fze9b2Kbkqf3w9FBfhPrHVgASRTthvtBwNl7bgsr7TwTwmi7CK2CzIl6WBWb5cpwoLIZaUuu2mGp90')
-            ->withNotification($notificationMessage);
-        $result = $messaging->send($message);
+        $tokens = FcmToken::pluck('device_token')->toArray();
+        foreach ($tokens as $token) {
+            $message = CloudMessage::withTarget('token', $token)
+                ->withNotification($notificationMessage);
+                $result = $messaging->send($message);
+        }
+        // $message = CloudMessage::withTarget('token', 'dBalU-zATJupIN8Tn85gLn:APA91bFLchTej3gB33Z5vnaTtbA04hr_iJFaMpYx7Fze9b2Kbkqf3w9FBfhPrHVgASRTthvtBwNl7bgsr7TwTwmi7CK2CzIl6WBWb5cpwoLIZaUuu2mGp90')
+        //     ->withNotification($notificationMessage);
+        // $result = $messaging->send($message);
         if ($result) {
             // Update the notification status
             $notification->update([
