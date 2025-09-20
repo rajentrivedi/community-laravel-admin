@@ -36,7 +36,7 @@ COPY . .
 RUN composer install
 
 # Set permissions
-RUN chmod -R 775 storage bootstrap/cache
+
 
 # Copy Caddyfile
 COPY Caddyfile /etc/caddy/Caddyfile
