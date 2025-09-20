@@ -6,16 +6,21 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libexif-dev \
     libpq-dev \
+    libfreetype6-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libwebp-dev \
+    unzip \
+    git \
     && docker-php-ext-install intl zip exif pdo pdo_pgsql pgsql \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) gd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Redis extension
-RUN pecl install redis && docker-php-ext-enable redis
-
-RUN apt-get update && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev libwebp-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) gd
+RUN pecl install redis \
+    && docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -26,7 +31,7 @@ WORKDIR /app
 # Copy composer files
 COPY composer.json composer.lock ./
 
-# Install dependencies
+# Install dependencies (prod first for speed)
 RUN composer install --no-dev --no-scripts --prefer-dist --optimize-autoloader
 
 # Copy application files
@@ -35,8 +40,8 @@ COPY . .
 # Install development dependencies
 RUN composer install
 
-# Set permissions
-
+RUN chmod 777 -R /storage
+RUN chmod 777 -R /bootstrap
 
 # Copy Caddyfile
 COPY Caddyfile /etc/caddy/Caddyfile
@@ -44,7 +49,6 @@ COPY Caddyfile /etc/caddy/Caddyfile
 # Expose ports
 EXPOSE 8000
 EXPOSE 2019
-
 
 # Start FrankenPHP server
 CMD ["frankenphp", "run"]
