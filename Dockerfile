@@ -40,8 +40,8 @@ COPY . .
 # Install development dependencies
 RUN composer install
 
-RUN chmod 777 -R /storage
-RUN chmod 777 -R /bootstrap
+RUN chmod -R 777 /app/storage /app/bootstrap/cache
+
 
 # Copy Caddyfile
 COPY Caddyfile /etc/caddy/Caddyfile
