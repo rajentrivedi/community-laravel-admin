@@ -108,6 +108,7 @@ class MatrimonialProfileForm
                             ->components([
                                 SpatieMediaLibraryFileUpload::make('profile_images')
                                     ->collection('profile_images')
+                                    ->disk('supabase')
                                     ->multiple()
                                     ->maxFiles(10)
                                     ->visibility('public')

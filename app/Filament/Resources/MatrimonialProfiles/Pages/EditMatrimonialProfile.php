@@ -11,9 +11,8 @@ class EditMatrimonialProfile extends EditRecord
 {
     protected static string $resource = MatrimonialProfileResource::class;
 
-    public static function afterSave(MatrimonialProfile $record): void
+    protected function afterSave(): void
     {
-        // Invalidate cache when a matrimonial profile is updated
         if (method_exists(Cache::getStore(), 'tags')) {
             Cache::tags(['matrimonial', 'profiles'])->flush();
         }

@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Model::automaticallyEagerLoadRelationships();
-        SpatieMediaLibraryFileUpload::configureUsing(function (SpatieMediaLibraryFileUpload $fileUpload) {
-            $fileUpload->disk('supabase');
-        });
+        // SpatieMediaLibraryFileUpload::configureUsing(function (SpatieMediaLibraryFileUpload $fileUpload) {
+        //     $fileUpload->disk('supabase');
+        // });
     }
 }
