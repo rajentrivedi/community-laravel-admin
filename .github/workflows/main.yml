@@ -1,3 +1,11 @@
+name: Deploy Laravel Dockerized App
+
+on:
+  push:
+    branches:
+      - main   # run this workflow whenever code is pushed to main branch
+  workflow_dispatch: # allows you to manually trigger from Actions tab
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,7 +20,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
+
           script: |
             cd /home/ubuntu/community-laravel-admin  # adjust to your actual app path
             git pull origin main
