@@ -25,9 +25,9 @@ class StorePostRequest extends FormRequest
             'title' => 'required|string|max:255',
             'body' => 'required|string',
             'published_at' => 'nullable|date',
-            'community_id' => 'required|exists:communities,id',
+            // 'community_id' => 'required|exists:communities,id',
             'type' => 'nullable|string|max:50',
-            'is_pinned' => 'nullable|boolean',
+            // 'is_pinned' => 'nullable|boolean',
             'images' => 'nullable|array|max:5',
             'images.*' => 'file|mimes:jpeg,png,jpg,gif,webp|max:2048', // 2MB max
         ];

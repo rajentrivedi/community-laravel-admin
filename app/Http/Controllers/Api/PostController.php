@@ -38,7 +38,14 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Post::with(['author', 'community', 'media']);
+        // Check if we should only show published posts
+        $showPublishedOnly = $request->get('published_only', false);
+        
+        if ($showPublishedOnly) {
+            $query = Post::published()->with(['author', 'community', 'media']);
+        } else {
+            $query = Post::with(['author', 'community', 'media']);
+        }
 
         // Apply filters
         if ($request->has('community_id')) {
@@ -86,7 +93,7 @@ class PostController extends Controller
                 return $query->paginate($request->get('per_page', 15));
             });
         }
-
+        dd($posts);
         return new PostCollection($posts);
     }
 

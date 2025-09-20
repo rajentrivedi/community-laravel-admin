@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             CommunitySeeder::class,
             NewsSeeder::class,
             MatrimonialProfileSeeder::class,
+            PostSeeder::class,
         ]);
 
         User::factory(1000)->create();
