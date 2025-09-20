@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,5 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Model::automaticallyEagerLoadRelationships();
+        SpatieMediaLibraryFileUpload::configureUsing(function (SpatieMediaLibraryFileUpload $fileUpload) {
+            $fileUpload->disk('supabase');
+        });
     }
 }

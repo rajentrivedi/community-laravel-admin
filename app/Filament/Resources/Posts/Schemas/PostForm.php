@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources\Posts\Schemas;
 
-use App\Models\Community;
 use App\Models\User;
-use Filament\Forms\Components\DateTimePicker;
+use App\Models\Community;
+use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class PostForm
@@ -18,7 +19,10 @@ class PostForm
     {
         return $schema
             ->components([
-                Select::make('community_id')
+                Section::make()
+                ->columnSpanFull()
+                ->schema([
+                    Select::make('community_id')
                     ->label('Community')
                     ->options(Community::all()->pluck('name', 'id'))
                     ->searchable(),
@@ -47,6 +51,7 @@ class PostForm
                     ->multiple()
                     ->image()
                     ->imageEditor(),
+                ])
             ]);
     }
 }

@@ -29,6 +29,16 @@ return [
     */
 
     'disks' => [
+        'supabase' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_KEY'),
+            'secret' => env('SUPABASE_SECRET'),
+            'region' => env('SUPABASE_REGION'), // Often 'us-east-1' or similar, depending on your Supabase project
+            'bucket' => env('SUPABASE_BUCKET'),
+            'endpoint' => env('SUPABASE_ENDPOINT'), // Your Supabase Storage URL
+            'use_path_style_endpoint' => true, // Important for Supabase
+            'url' => env('SUPABASE_URL'), // Base URL for public access if needed
+        ],
 
         'local' => [
             'driver' => 'local',

@@ -93,7 +93,7 @@ class PostController extends Controller
                 return $query->paginate($request->get('per_page', 15));
             });
         }
-        dd($posts);
+       
         return new PostCollection($posts);
     }
 
