@@ -13,6 +13,7 @@ class Post extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
+    
     protected $casts = [
         'published_at'=>'datetime',
         'is_pinned'=>'boolean'
